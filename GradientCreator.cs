@@ -5,7 +5,7 @@ using System.IO;
 
 public class GradientCreator : EditorWindow
 {
-    [MenuItem("*Athena*/ArtistTools/GradientCreator")]
+    [MenuItem("ArtistTools/GradientCreator")]
     private static void ShowWindow()
     {
         var window = GetWindow<GradientCreator>();
