@@ -22,9 +22,13 @@ public class GradientCreator : EditorWindow
     public GradientCreatorData.Format index;
     int FormatIndex = 0;
     private string _Format = ".tga";
-    
+    bool previewModeON = false;
+    private Material mat;
+    private Material tempMat;
+    private Texture tex;
     private void OnGUI()
     {
+        PreviewMode();
         EditorGUI.BeginChangeCheck();
         _GradientData = EditorGUILayout.ObjectField("GradientData", _GradientData, typeof(GradientCreatorData), false) as GradientCreatorData;
         if (EditorGUI.EndChangeCheck())//结束检查是否有修改
@@ -39,6 +43,47 @@ public class GradientCreator : EditorWindow
         SceneView.RepaintAll();
         DrawGUI();
         SaveTextureAndSaveData();
+    }
+
+    public void PreviewMode()
+    {
+        EditorGUILayout.BeginHorizontal();
+        previewModeON = GUILayout.Toggle(previewModeON, "Preview Mode", "Button", GUILayout.Width(100));
+        if (previewModeON)
+        {
+            mat = (Material)EditorGUILayout.ObjectField("需要预览的材质球", mat, typeof(Material), true);
+            if(!tempMat) tempMat = mat;
+            if (mat)
+            {
+                if(!tex)
+                    tex = mat.GetTexture("_StockingRampMap");
+                mat.SetTexture("_StockingRampMap", _GradientMap);
+            }
+            else
+            {
+                if (tex)
+                {
+                    tempMat.SetTexture("_StockingRampMap", tex);
+                    tempMat = null;
+                    tex = null;
+                }
+            }
+        }
+        else
+        {
+            if (tex && mat)
+            {
+                mat.SetTexture("_StockingRampMap",tex);
+                tex = null;
+                mat = null;
+            }else if (tex && !mat)
+            {
+                tempMat.SetTexture("_StockingRampMap",tex);
+                tempMat = null;
+                tex = null;
+            }
+        }
+        EditorGUILayout.EndHorizontal();
     }
 
     public void AnalyzeData(GradientCreatorData data)
@@ -70,7 +115,7 @@ public class GradientCreator : EditorWindow
     //绘制GUI
     private void DrawGUI()
     {
-        _GradientWidth = (GradientCreatorData.WidthSize)EditorGUILayout.EnumPopup("每条渐变宽度(像素)",_GradientWidth, GUILayout.Width(800));
+        _GradientWidth = (GradientCreatorData.WidthSize)EditorGUILayout.EnumPopup("每条渐变宽度(像素)",_GradientWidth);
         
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("纹理名称", GUILayout.Width(100));
